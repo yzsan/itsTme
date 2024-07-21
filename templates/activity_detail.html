@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>  
+    <meta charset="UTF-8">
+    <title>Activity Detail</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<!-- ## headのインデントが一つ右になっていたので直す -->
+<!-- ## linkの1行が抜けていたので追加する  -->
+<body>
+    <h1>{{ activity.name }}</h1>
+    <p>Last done: {{ activity.last_done.strftime('%Y-%m-%d %H:%M:%S') }}</p>  <!-- ### 追加(TIME)日本時間に変換-->
+    <p>Details: {{ activity.details }}</p>  <!-- not __ activity.details </p> -->
+    <form action="{{ url_for('update_activity', id=activity.id) }}" method="post"> <!-- not action="/update/__ activity.id __" -->
+        <button type="submit">Update Last Done</button>
+    </form>
+
+    <!-- 次のformの3行が抜けていたので追加する -->
+    <form action="{{ url_for('delete_activity', id=activity.id) }}" method="post">
+        <button type="submit">Delete</button>
+    </form>
+    <a href="{{ url_for('index') }}">Back to Home</a> <!-- not Back</a> -->
+</body>
+</html>
