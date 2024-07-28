@@ -14,7 +14,7 @@ class Activity(db.Model):  ## not db.model
     name = db.Column(db.String(200), nullable=False)
     last_done = db.Column(db.DateTime, default=datetime.utcnow)
     details = db.Column(db.String(500), nullable=True)
-    updates = db.relationship('Update', backref='activity', lazy=True)
+    updates = db.relationship('Update', backref='activity', lazy=True, cascade="all, delete-orphan")
 
 class Update(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -33,6 +33,10 @@ def index():
         activity.last_done = activity.last_done.astimezone(JST)
         activity.elapsed_days = (current_time - activity.last_done).days  ##　経過日数を計算
         print(f"After: {activity.last_done}")  # 追加
+
+    # 経過日数の長い順にソート
+    activities.sort(key=lambda activity: activity.elapsed_days, reverse=True)
+
     return render_template('index.html', activities=activities)
 
 

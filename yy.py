@@ -9,12 +9,12 @@ db = SQLAlchemy(app)
 
 JST = pytz.timezone('Asia/Tokyo')  # 追加(TIME)
 
-class Activity(db.Model):  # not db.model
+class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
     last_done = db.Column(db.DateTime, default=datetime.utcnow)
     details = db.Column(db.String(500), nullable=True)
-    updates = db.relationship('Update', backref='activity', lazy=True)
+    updates = db.relationship('Update', backref='activity', lazy=True, cascade="all, delete-orphan")
 
 class Update(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -23,17 +23,21 @@ class Update(db.Model):
     note = db.Column(db.String(500), nullable=True)
 
 @app.route('/')
+@app.route('/')
 def index():
     activities = Activity.query.all()
     current_time = datetime.now(pytz.utc).astimezone(JST)
     for activity in activities:
         if activity.last_done.tzinfo is None:
             activity.last_done = pytz.utc.localize(activity.last_done)
-        print(f"Before: {activity.last_done}")  # 追加
         activity.last_done = activity.last_done.astimezone(JST)
-        activity.elapsed_days = (current_time - activity.last_done).days  # 経過日数を計算
-        print(f"After: {activity.last_done}")  # 追加
+        activity.elapsed_days = (current_time - activity.last_done).days
+
+    # 経過日数の長い順にソート
+    activities.sort(key=lambda activity: activity.elapsed_days, reverse=True)
+
     return render_template('index.html', activities=activities)
+
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_activity():
