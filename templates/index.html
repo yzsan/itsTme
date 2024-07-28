@@ -1,8 +1,11 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Last Time App</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- Font Awesome アイコンの読み込み -->
+
     <!-- HTMLドキュメントに外部のCSSスタイルシートをリンクするためのタグです。このタグを使うことで、外部スタイルシートに記述されたスタイルがHTMLに適用されます。 -->
     <!-- FlaskのテンプレートエンジンであるJinja2(Nのp194)を使用して、url_for関数を使用 -->
     <!-- staticはデフォルトで静的ファイル（CSS、JavaScript、画像など）を格納するディレクトリを指します。 -->
@@ -16,7 +19,8 @@
         {% for activity in activities %}
             <li>
                 <a href="{{ url_for('activity_detail', id=activity.id) }}">{{ activity.name }}</a>
-                - Last done: {{ activity.last_done.strftime('%Y-%m-%d %H:%M:%S') }}  <!-- 追加(TIME) -->
+                <span>{{ activity.last_done.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                <span><i class="fas fa-clock"></i> {{ activity.elapsed_days }}日経過</span> <!-- 経過日数を表示 -->
                 <form action="{{ url_for('delete_activity', id=activity.id) }}" method="post" style="display:inline;">
                     <button type="submit">Delete</button>
                 </form>

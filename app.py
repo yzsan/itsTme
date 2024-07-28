@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz  ### 追加(TIME)
 
 app = Flask(__name__)
@@ -14,15 +14,24 @@ class Activity(db.Model):  ## not db.model
     name = db.Column(db.String(200), nullable=False)
     last_done = db.Column(db.DateTime, default=datetime.utcnow)
     details = db.Column(db.String(500), nullable=True)
+    updates = db.relationship('Update', backref='activity', lazy=True)
+
+class Update(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    activity_id = db.Column(db.Integer, db.ForeignKey('activity.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    note = db.Column(db.String(500), nullable=True)
 
 @app.route('/')
 def index():
     activities = Activity.query.all()
+    current_time = datetime.now(pytz.utc).astimezone(JST)
     for activity in activities:
         if activity.last_done.tzinfo is None:  #### 追加の追加(TIME)
             activity.last_done = pytz.utc.localize(activity.last_done)
         print(f"Before: {activity.last_done}")  # 追加
         activity.last_done = activity.last_done.astimezone(JST)
+        activity.elapsed_days = (current_time - activity.last_done).days  ##　経過日数を計算
         print(f"After: {activity.last_done}")  # 追加
     return render_template('index.html', activities=activities)
 
@@ -48,8 +57,15 @@ def activity_detail(id):
         activity.last_done = pytz.utc.localize(activity.last_done)
     print(f"Before: {activity.last_done}")  # 追加
     activity.last_done = activity.last_done.astimezone(JST)  ### 追加(TIME) 日本時間に変換
+    updates = Update.query.filter_by(activity_id=id).order_by(Update.timestamp.desc()).all()
     print(f"After: {activity.last_done}")  # 追加
-    return render_template('activity_detail.html', activity=activity)
+    for update in updates:
+        if update.timestamp.tzinfo is None:
+            update.timestamp = pytz.utc.localize(update.timestamp)
+        update.timestamp = update.timestamp.astimezone(JST)
+
+    return render_template('activity_detail.html', activity=activity, updates=updates)
+    # return render_template('activity_detail.html', activity=activity, update=update)
 
 ## この行はFlaskのデコレーターで、特定のURLパス（/update/<int:id>）と
 ## HTTPメソッド（POST）にマッチするリクエストが来た場合に、
@@ -60,6 +76,9 @@ def activity_detail(id):
 # '<int:id>'はURLパスの一部で、整数型のIDを動的に受け取ります。
 def update_activity(id):  # この関数は、エンドポイントにマッピングされた処理を行います。
     activity = Activity.query.get(id)  # Activityモデルを使って、指定されたIDのレコードをデータベースから取得します。
+    note = request.form.get('note')
+    new_update = Update(activity_id=id, note=note)
+
     # Activity.query.get(id)は、SQLAlchemyを使って IDでアクティビティを検索します。
     
     activity.last_done = datetime.utcnow()  # 取得したアクティビティの'last_done'フィールドを現在のUTC時間に更新します。
@@ -71,7 +90,7 @@ def update_activity(id):  # この関数は、エンドポイントにマッピ�
     # print(f"Updated datetime: {activity.last_done}")  #### 追加
     # datetime.utcnow()は、現在のUTC時間を取得する関数です。
 
-
+    db.session.add(new_update)
     db.session.commit()  # データベースセッションの変更を確定させます。
     # この操作により、データベースに対する変更が保存されます。
 
