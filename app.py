@@ -47,7 +47,10 @@ def add_activity():
         name = request.form.get('name')
         details = request.form.get('details')
         # new_activity = Activity(name=name)  ## これを修正
-        new_activity = Activity(name=name, details=details)
+        last_done = datetime.strptime(request.form['last_done'], '%Y-%m-%dT%H:%M')
+        last_done = JST.localize(last_done)  ## 強制追加
+        last_done = last_done.astimezone(pytz.utc)  ## 強制追加
+        new_activity = Activity(name=name, details=details, last_done=last_done)
 
         db.session.add(new_activity)
         db.session.commit()

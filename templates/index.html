@@ -1,31 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Last Time App</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- Font Awesome アイコンの読み込み -->
+{% extends "base.html" %}
 
-    <!-- HTMLドキュメントに外部のCSSスタイルシートをリンクするためのタグです。このタグを使うことで、外部スタイルシートに記述されたスタイルがHTMLに適用されます。 -->
-    <!-- FlaskのテンプレートエンジンであるJinja2(Nのp194)を使用して、url_for関数を使用 -->
-    <!-- staticはデフォルトで静的ファイル（CSS、JavaScript、画像など）を格納するディレクトリを指します。 -->
-</head>
-<body>
-    <h1>Last Time App</h1>
-    <a href="{{ url_for('add_activity') }}">Add New Activity</a>
-    <!-- <a>タグは、リンクを作成するためのタグです。<a>タグのhref属性を使って、リンク先のURLを指定します。このタグを使用することで、ユーザーがクリックすると指定されたURLに移動します。 -->
-    <ul>
-    <!-- <ul>タグは、順序がないリストを作るために使用され、通常、アイテムは丸い箇条書き（ディスク）として表示されます。 -->
-        {% for activity in activities %}
-            <li>
-                <a href="{{ url_for('activity_detail', id=activity.id) }}">{{ activity.name }}</a>
-                <span>{{ activity.last_done.strftime('%Y-%m-%d %H:%M:%S') }}</span>
-                <span><i class="fas fa-clock"></i> {{ activity.elapsed_days }}日経過</span> <!-- 経過日数を表示 -->
+{% block title %}Activity List{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Activity List</h1>
+<div class="row">
+    {% for activity in activities %}
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ activity.name }}</h5>
+                <p class="card-text">Last Done: {{ activity.last_done.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                <p class="card-text">Days Elapsed: {{ activity.elapsed_days }}</p>
+                <a href="{{ url_for('activity_detail', id=activity.id) }}" class="btn btn-primary">Details</a>
                 <form action="{{ url_for('delete_activity', id=activity.id) }}" method="post" style="display:inline;">
-                    <button type="submit">Delete</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
-            </li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<a href="{{ url_for('add_activity') }}" class="btn btn-success">Add Activity</a>
+{% endblock %}

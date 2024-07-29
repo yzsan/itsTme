@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"> <!-- HTML5文書であることを宣言し、言語を英語に設定 -->
+
+<head> <!-- HTML文書のメタデータ（ドキュメントの設定情報）を含むセクションです。 -->
+    <!--  -->
+    <meta charset="UTF-8"> <!-- ## not charset="="UTF-8 文字エンコーディングをUTF-8に設定 -->
+    <title>Add Activity</title> <!-- ブラウザタブに表示割れるページタイトルを設定 -->
+</head>
+
+<body> <!-- HTML文書の本文を含むセクションです。 -->
+    <h1>Add Activity</h1> <!-- ページの見出しとして「Add Activity」を表示 -->
+    <form action="{{ url_for('add_activity') }}" method="post"> <!-- ## not action="/add" method="'post" (ユーザーが入力した)フォームデータをPOSTメソッドで"/add" URLに送信 -->
+        <input type="text" name="name" placeholder="Activity Name" required> <!-- 活動名を入力するテキストボックス。必須項目 -->
+        <textarea name="details" placeholder="Details"></textarea> <!-- 活動の詳細を入力するテキストエリア -->
+        <button type="submit">Add Activity</button> <!-- フォームを送信する(ための)ボタン -->
+    </form>
+
+    <!-- ホームページへのリンク -->
+    <a href="{{ url_for('index') }}">Back</a> <!-- Flaskテンプレートのurl_forを使用してホームページ（index）へのリンクを生成 -->
+</body>
+
+</html>

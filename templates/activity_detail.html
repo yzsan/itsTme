@@ -1,48 +1,32 @@
-<!DOCTYPE html>
-<!-- <html lang="en"> -->
-<html>
-<head>  
-    <meta charset="UTF-8">
-    <title>Activity Detail</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<!-- ## headのインデントが一つ右になっていたので直す -->
-<!-- ## linkの1行が抜けていたので追加する  -->
-<body>
-    <h1>{{ activity.name }}</h1>
-    <p>Last Done: {{ activity.last_done.strftime('%Y-%m-%d %H:%M:%S') }}</p>  <!-- ### 追加(TIME)日本時間に変換-->
-    <!-- <p>Details: {{ activity.details }}</p>  not __ activity.details </p> -->
+{% extends "base.html" %}
 
-    <h2>Update History</h2>
-    <ul>
-        {% for update in updates %}
-            <!-- {% if update.timestamp %} -->
-            <li>
-                {{ update.timestamp.strftime('%Y-%m-%d %H:%M:%S') }} - {{ update.note }}
-            </li>
-            <!-- {% else %}
-                <li>
-                    No timestamp - {{ update.note }}
-                </li> -->
-            {% endif %}
-        {% endfor %}
-    </ul>
-    <!-- <h2>Add Update</h2> -->
+{% block title %}Activity Detail{% endblock %}
 
-    <form action="{{ url_for('update_activity', id=activity.id) }}" method="post"> <!-- not action="/update/__ activity.id __" -->
-        <textarea name="note" placeholder="Add a note"></textarea>
-        
-        <!-- <label for="note">Note:</label>
-        <input type="text" id="note" name="note"> -->
-        <!-- <button type="submit">Update</button> -->
-        <button type="submit">Update Last Done</button>
+{% block content %}
+<h1 class="mb-4">{{ activity.name }}</h1>
+<p>Last Done: {{ activity.last_done.strftime('%Y-%m-%d %H:%M:%S') }}</p>  <!-- before0と同じ -->
+<p>Details: {{ activity.details }}</p>  <!-- before0と同じ -->
 
-    </form>
+<h2>Update History</h2>  <!-- before0と同じ -->
+<ul class="list-group mb-4">
+    {% for update in updates %}  <!-- before0と同じ -->
+    <li class="list-group-item">
+        {{ update.timestamp.strftime('%Y-%m-%d %H:%M:%S') }} - {{ update.note }}  <!-- ここは敢えて、before0と同じ -->
+    </li>
+    {% endfor %}  <!-- before0と同じ -->
+</ul>
 
-    <!-- 次のformの3行が抜けていたので追加する -->
-    <form action="{{ url_for('delete_activity', id=activity.id) }}" method="post">
-        <button type="submit">Delete</button>
-    </form>
-    <a href="{{ url_for('index') }}">Back to List</a> <!-- not Back</a> -->
-</body>
-</html>
+<h2>Add Update</h2>
+<form action="{{ url_for('update_activity', id=activity.id) }}" method="post" class="mb-4">
+    <div class="form-group">
+        <textarea name="note" class="form-control" placeholder="Add a note"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Update Last Done</button>
+</form>
+
+<form action="{{ url_for('delete_activity', id=activity.id) }}" method="post">  <!-- before0と同じ -->
+    <button type="submit" class="btn btn-danger">Delete</button>
+</form>
+
+<a href="{{ url_for('index') }}" class="btn btn-secondary">Back to List</a>
+{% endblock %}
