@@ -26,18 +26,23 @@ class Update(db.Model):
 def index():
     activities = Activity.query.all()
     current_time = datetime.now(pytz.utc).astimezone(JST)
+    activities_with_elapsed = []
     for activity in activities:
-        if activity.last_done.tzinfo is None:  #### 追加の追加(TIME)
+        if activity.last_done.tzinfo is None:
             activity.last_done = pytz.utc.localize(activity.last_done)
-        print(f"Before: {activity.last_done}")  # 追加
-        activity.last_done = activity.last_done.astimezone(JST)
-        activity.elapsed_days = (current_time - activity.last_done).days  ##　経過日数を計算
-        print(f"After: {activity.last_done}")  # 追加
+        activity.last_done = activity.last_done.astimezone(JST)  ## この1行でUTCからJST表示
+        elapsed_days = (current_time - activity.last_done).days
+        activities_with_elapsed.append({
+            'activity': activity,
+            'elapsed_days': elapsed_days
+        })
 
-    # 経過日数の長い順にソート
-    activities.sort(key=lambda activity: activity.elapsed_days, reverse=True)
 
-    return render_template('index.html', activities=activities)
+    # 経過日数の多い順にソート
+    sorted_activities = sorted(activities_with_elapsed, key=lambda activity: activity['elapsed_days'], reverse=True)
+    return render_template('index.html', activities=sorted_activities)
+
+    
 
 
 @app.route('/add', methods=['GET', 'POST'])

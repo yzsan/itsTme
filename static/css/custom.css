@@ -1,0 +1,65 @@
+/* custom.css */
+body {
+    background-color: #fffaf0; /* ivory */
+}
+
+h1, h2, h3, h4, h5, h6, p {
+    color: #8b4513; /* saddle brown */
+}
+
+.btn-custom {
+    background-color: #ff7f50; /* coral */
+    color: white;
+    border-color: #ff6347; /* tomato */
+}
+
+.btn-custom:hover {
+    background-color: #ff6347; /* tomato */
+    border-color: #ff4500; /* orange red */
+}
+
+.navbar-custom {
+    background-color: #8b4513; /* saddle brown */
+    color: white;
+}
+
+.navbar-custom .navbar-brand,
+.navbar-custom .nav-link {
+    color: white;
+}
+
+.navbar-custom .nav-link:hover {
+    color: #ffdead; /* navajo white */
+}
+
+.badge-warning {
+    display: inline-block;
+    padding: 0.5em 1em; /* パディングを増やしてアイコンを大きく */
+    background-color: #ffcc80; /* オレンジ系の色 */
+    color: #fff; /* 濃い茶色 */
+    border-radius: 0.25em; /* 少し角を丸く */
+    font-size: 1.25em; /* フォントサイズを大きく */
+    font-weight: bold;
+    text-align: center;
+}
+
+.days {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffcc80;
+    border-radius: 50%;
+    width: 60px;  /* サイズを大きくします */
+    height: 60px; /* サイズを大きくします */
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.table .last_done {
+    white-space: nowrap; /* 改行を防ぐ */
+    overflow: hidden; /* 内容がセルを超えた場合に隠す */
+    text-overflow: ellipsis; /* 内容が長すぎる場合に省略記号を表示 */
+}
+
+  

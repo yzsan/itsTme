@@ -4,22 +4,32 @@
 
 {% block content %}
 <h1 class="mb-4">Activity List</h1>
-<div class="row">
-    {% for activity in activities %}
-    <div class="col-md-4 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">{{ activity.name }}</h5>
-                <p class="card-text">Last Done: {{ activity.last_done.strftime('%Y-%m-%d %H:%M:%S') }}</p>
-                <p class="card-text">Days Elapsed: {{ activity.elapsed_days }}</p>
-                <a href="{{ url_for('activity_detail', id=activity.id) }}" class="btn btn-primary">Details</a>
-                <form action="{{ url_for('delete_activity', id=activity.id) }}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-<a href="{{ url_for('add_activity') }}" class="btn btn-success">Add Activity</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Days Elapsed</th>
+            <th>Name</th>
+            <th>Details</th>
+            <th>Last Done</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in activities %}
+            <tr>
+                <td><span class="badge badge-warning">{{ item.elapsed_days }} days</span></td>
+                <td>{{ item.activity.name }}</td>
+                <td>{{ item.activity.details }}</td>
+                <td class="last_done">{{ item.activity.last_done.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td>
+                    <a href="{{ url_for('activity_detail', id=item.activity.id) }}" class="btn btn-custom">Detail</a>
+                    <form action="{{ url_for('delete_activity', id=item.activity.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('add_activity') }}" class="btn btn-custom">Add Activity</a>
 {% endblock %}

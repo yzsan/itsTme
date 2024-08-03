@@ -1,25 +1,43 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
 }
 
-h1, h2 {
-    color: #333;
+.container {
+    max-width: 960px;
+    margin-top: 20px;
 }
 
-.card {
-    border: 1px solid #ddd;
+.navbar-custom {
+    background-color: #8b4513; /* 茶色 */
 }
 
-.card-title {
-    font-size: 1.25rem;
+.btn-custom {
+    background-color: #ffcc00; /* オレンジ色 */
+    color: #fff;
+    border: none;
+}
+
+.btn-custom:hover {
+    background-color: #ff9900; /* 濃いオレンジ */
+    color: #fff;
+}
+
+.badge-warning {
+    background-color: #ffcc00; /* 黄色 */
+    color: #8b4513; /* 濃い茶色 */
+    font-size: 1.5em; /* フォントサイズを大きく */
+    padding: 0.7em 1.2em; /* パディングを増やしてアイコンを大きく */
+    border-radius: 0.5em; /* 少し角を丸く */
+}
+
+.badge-warning {
+    display: inline-block;
+    padding: 0.5em 1em;
+    background-color: #ffcc80; /* オレンジ系の色 */
+    color: #fff;
+    border-radius: 0.25em;
+    font-size: 1.25em; /* フォントサイズを大きく */
     font-weight: bold;
-}
-
-.card-text {
-    font-size: 1rem;
-    color: #555;
-}
-
-.btn {
-    margin-top: 10px;
+    text-align: center;
 }
