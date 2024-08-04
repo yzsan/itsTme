@@ -1,30 +1,85 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash  # * flashの追加
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate  # ** Flask-Migrateを追加
 from datetime import datetime, timedelta
 import pytz  ### 追加(TIME)
 
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_bcrypt import Bcrypt
+
+# Flaskアプリケーションの設定
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///activities.db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///activities.db'
+# app.config['SECRET_KEY'] = 'your_secret_key'  # *
+app.config.from_object('config.Config')  # * config.pyから上の2行をインポート
+
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)  # ** マイグレーションの設定 
+login_manager = LoginManager(app)  # *
+bcrypt = Bcrypt(app)  # *
+
+# モデルのインポート
+from models import User, Activity, Update
+
+# ユーザー認証の設定
+login_manager.login_view = 'login'  # *
 
 JST = pytz.timezone('Asia/Tokyo')  ### 追加(TIME)
 
-class Activity(db.Model):  ## not db.model
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(200), nullable=False)
-    last_done = db.Column(db.DateTime, default=datetime.utcnow)
-    details = db.Column(db.String(500), nullable=True)
-    updates = db.relationship('Update', backref='activity', lazy=True, cascade="all, delete-orphan")
+# class Activity(db.Model):  ## not db.model
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(200), nullable=False)
+#     last_done = db.Column(db.DateTime, default=datetime.utcnow)
+#     details = db.Column(db.String(500), nullable=True)
+#     updates = db.relationship('Update', backref='activity', lazy=True, cascade="all, delete-orphan")
 
-class Update(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    activity_id = db.Column(db.Integer, db.ForeignKey('activity.id'), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    note = db.Column(db.String(500), nullable=True)
+# class Update(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     activity_id = db.Column(db.Integer, db.ForeignKey('activity.id'), nullable=False)
+#     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+#     note = db.Column(db.String(500), nullable=True)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+
+@app.route('/login', methods=['GET', 'POST'])  # *
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        user = User.query.filter_by(username=username).first()
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_user(user)
+            return redirect(url_for('index'))
+        else:
+            flash('Login Unsuccessful. Check username and password', 'danger')
+    return render_template('login.html')
+
+@app.route('/logout')  # *
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route('/register', methods=['GET', 'POST'])  # *
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        new_user = User(username=username, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect(url_for('login'))
+    return render_template('register.html')
 
 @app.route('/')
+@login_required  # *
 def index():
-    activities = Activity.query.all()
+    # activities = Activity.query.all()
+    activities = Activity.query.filter_by(user_id=current_user.id).all()  # *
     current_time = datetime.now(pytz.utc).astimezone(JST)
     activities_with_elapsed = []
     for activity in activities:
@@ -46,6 +101,7 @@ def index():
 
 
 @app.route('/add', methods=['GET', 'POST'])
+@login_required  # ** migration修正の際に追加
 def add_activity():
     if request.method == 'POST':
         # name = request.form.get('details')  ## これ1行だけだったので修正
@@ -55,7 +111,7 @@ def add_activity():
         last_done = datetime.strptime(request.form['last_done'], '%Y-%m-%dT%H:%M')
         last_done = JST.localize(last_done)  ## 強制追加
         last_done = last_done.astimezone(pytz.utc)  ## 強制追加
-        new_activity = Activity(name=name, details=details, last_done=last_done)
+        new_activity = Activity(name=name, details=details, last_done=last_done, user_id=current_user.id)  # ** migration修正の際にuser_id記載を追加
 
         db.session.add(new_activity)
         db.session.commit()
@@ -125,3 +181,5 @@ if __name__ == "__main__":
     app.run(debug=True)  # Flaskアプリケーションを実行します。'debug=True'はデバッグモードを有効にし、コードの変更を自動的に反映させたり、エラーメッセージを詳しく表示したりします。
     ## ただし、本番環境では通常、debug=Falseに設定します。
 
+# if __name__ == '__main__':
+#     app.run(debug=True)

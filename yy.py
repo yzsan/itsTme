@@ -1,58 +1,94 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-import pytz  # 追加(TIME)
+from flask_migrate import Migrate  # Flask-Migrateを追加
+from datetime import datetime, timedelta
+import pytz
 
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_bcrypt import Bcrypt
+
+# Flaskアプリケーションの設定
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///activities.db'
+app.config.from_object('config.Config')
+
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)  # マイグレーションの設定
+login_manager = LoginManager(app)
+bcrypt = Bcrypt(app)
 
-JST = pytz.timezone('Asia/Tokyo')  # 追加(TIME)
+# モデルのインポート
+from models import User, Activity, Update
 
-class Activity(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(200), nullable=False)
-    last_done = db.Column(db.DateTime, default=datetime.utcnow)
-    details = db.Column(db.String(500), nullable=True)
-    updates = db.relationship('Update', backref='activity', lazy=True, cascade="all, delete-orphan")
+# ユーザー認証の設定
+login_manager.login_view = 'login'
 
-class Update(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    activity_id = db.Column(db.Integer, db.ForeignKey('activity.id'), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    note = db.Column(db.String(500), nullable=True)
+JST = pytz.timezone('Asia/Tokyo')
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        user = User.query.filter_by(username=username).first()
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_user(user)
+            return redirect(url_for('index'))
+        else:
+            flash('Login Unsuccessful. Check username and password', 'danger')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        new_user = User(username=username, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect(url_for('login'))
+    return render_template('register.html')
 
 @app.route('/')
+@login_required
 def index():
-    # 現在の日付を取得
-    today = datetime.today().date()
-
-    # アクティビティとその経過日数を取得
-    activities = Activity.query.all()
-    activity_with_days_passed = [
-        {
-            'id': activity.id,
-            'name': activity.name,
-            'date': activity.date,
-            'days_passed': (today - activity.date).days
-        } for activity in activities
-    ]
-
-    # 経過日数の多い順にソート
-    sorted_activities = sorted(activity_with_days_passed, key=lambda activity: activity['days_passed'], reverse=True)
-
+    activities = Activity.query.filter_by(user_id=current_user.id).all()
+    current_time = datetime.now(pytz.utc).astimezone(JST)
+    activities_with_elapsed = []
+    for activity in activities:
+        if activity.last_done.tzinfo is None:
+            activity.last_done = pytz.utc.localize(activity.last_done)
+        activity.last_done = activity.last_done.astimezone(JST)
+        elapsed_days = (current_time - activity.last_done).days
+        activities_with_elapsed.append({
+            'activity': activity,
+            'elapsed_days': elapsed_days
+        })
+    sorted_activities = sorted(activities_with_elapsed, key=lambda activity: activity['elapsed_days'], reverse=True)
     return render_template('index.html', activities=sorted_activities)
 
 @app.route('/add', methods=['GET', 'POST'])
+@login_required
 def add_activity():
     if request.method == 'POST':
         name = request.form.get('name')
         details = request.form.get('details')
-        new_activity = Activity(name=name, details=details)
-
+        last_done = datetime.strptime(request.form['last_done'], '%Y-%m-%dT%H:%M')
+        last_done = JST.localize(last_done)
+        last_done = last_done.astimezone(pytz.utc)
+        new_activity = Activity(name=name, details=details, last_done=last_done, user_id=current_user.id)
         db.session.add(new_activity)
         db.session.commit()
-        return redirect(url_for('index'))  # 抜けていたので修正
+        return redirect(url_for('index'))
     return render_template('add_activity.html')
 
 @app.route('/activity/<int:id>')
@@ -73,9 +109,7 @@ def update_activity(id):
     activity = Activity.query.get(id)
     note = request.form.get('note')
     new_update = Update(activity_id=id, note=note)
-
     activity.last_done = datetime.utcnow()
-
     db.session.add(new_update)
     db.session.commit()
     return redirect(url_for('activity_detail', id=id))
@@ -90,5 +124,8 @@ def delete_activity(id):
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-
     app.run(debug=True)
+
+
+# if __name__ == '__main__':
+#     app.run(debug=True)
