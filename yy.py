@@ -19,7 +19,7 @@ from flask_bcrypt import Bcrypt
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
-login_manager.login_view = 'main.login'
+login_manager.login_view = 'login'
 
 def create_app():
     app = Flask(__name__)
@@ -29,8 +29,10 @@ def create_app():
     bcrypt.init_app(app)
     login_manager.init_app(app)
 
+    migrate = Migrate(app, db)  # 追加
+
     with app.app_context():
-        from models import User, Activity, Update  # 相対インポートを絶対インポートに変更
+        from models import User, Activity, Update
         db.create_all()
 
     from routes import main as main_blueprint
