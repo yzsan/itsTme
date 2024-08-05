@@ -9,11 +9,13 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-custom">
-        <a class="navbar-brand" href="{{ url_for('index') }}">Activity Tracker</a>
+        <a class="navbar-brand" href="{{ url_for('main.index') }}">Activity Tracker</a>
+
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item"> 
-                    <a class="nav-link" href="{{ url_for('add_activity') }}">Add Activity</a>
+                    <a class="nav-link" href="{{ url_for('main.add_activity') }}">Add Activity</a>
+
                 </li>
             </ul>
         </div>

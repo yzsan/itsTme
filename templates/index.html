@@ -22,8 +22,8 @@
                 <td>{{ item.activity.details }}</td>
                 <td class="last_done">{{ item.activity.last_done.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                 <td>
-                    <a href="{{ url_for('activity_detail', id=item.activity.id) }}" class="btn btn-custom">Detail</a>
-                    <form action="{{ url_for('delete_activity', id=item.activity.id) }}" method="post" style="display:inline;">
+                    <a href="{{ url_for('main.activity_detail', id=item.activity.id) }}" class="btn btn-custom">Detail</a>
+                    <form action="{{ url_for('main.delete_activity', id=item.activity.id) }}" method="post" style="display:inline;">
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
                 </td>
@@ -31,5 +31,5 @@
         {% endfor %}
     </tbody>
 </table>
-<a href="{{ url_for('add_activity') }}" class="btn btn-custom">Add Activity</a>
+<a href="{{ url_for('main.add_activity') }}" class="btn btn-custom">Add Activity</a>
 {% endblock %}

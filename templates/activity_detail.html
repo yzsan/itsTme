@@ -17,7 +17,7 @@
 </ul>
 
 <h2>Add Update</h2>
-<form action="{{ url_for('update_activity', id=activity.id) }}" method="post">
+<form action="{{ url_for('main.update_activity', id=activity.id) }}" method="post">
     <div class="form-group">
         <label for="note">Note</label>
         <textarea class="form-control" id="note" name="note" rows="3" placeholder="Add a note"></textarea>
@@ -25,8 +25,8 @@
     <button type="submit" class="btn btn-custom">Update Last Done</button>
 </form>
 
-<form action="{{ url_for('delete_activity', id=activity.id) }}" method="post" class="mt-2">  <!-- before0と同じ -->
+<form action="{{ url_for('main.delete_activity', id=activity.id) }}" method="post" class="mt-2">  <!-- before0と同じ -->
     <button type="submit" class="btn btn-danger">Delete</button>
 </form>
-<a href="{{ url_for('index') }}" class="btn btn-secondary mt-2">Back to List</a>
+<a href="{{ url_for('main.index') }}" class="btn btn-secondary mt-2">Back to List</a>
 {% endblock %}

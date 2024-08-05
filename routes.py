@@ -53,7 +53,7 @@ JST = pytz.timezone('Asia/Tokyo')  ### 追加(TIME)
 @main.route('/logout')  # *
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('main.index'))
 
 # @app.route('/')
 @main.route('/')
@@ -80,7 +80,8 @@ def index():
 
 
 # @app.route('/add', methods=['GET', 'POST'])
-@main.route('/add', methods=['GET', 'POST'])
+# @main.route('/add', methods=['GET', 'POST'])
+@main.route('/add_activity', methods=['GET', 'POST'])
 @login_required  # ** migration修正の際に追加
 def add_activity():
     if request.method == 'POST':
@@ -95,7 +96,7 @@ def add_activity():
 
         db.session.add(new_activity)
         db.session.commit()
-        return redirect(url_for('index'))  ## 抜けていたので修正
+        return redirect(url_for('main.index'))  ## 抜けていたので修正
     return render_template('add_activity.html')
 
 # @app.route('/activity/<int:id>')  ## ここからの4行が抜けていたので追加
@@ -144,7 +145,7 @@ def update_activity(id):  # この関数は、エンドポイントにマッピ�
     db.session.commit()  # データベースセッションの変更を確定させます。
     # この操作により、データベースに対する変更が保存されます。
 
-    return redirect(url_for('activity_detail', id=id))  # 指定されたIDのアクティビティ詳細ページにリダイレクトします。
+    return redirect(url_for('main.activity_detail', id=id))  # 指定されたIDのアクティビティ詳細ページにリダイレクトします。
     # 'url_for('activity_detail', id=id)'は、'activity_detail'という名前のルートに対するURLを生成します。
     # リダイレクトは、ブラウザに新しいページへの遷移を指示します。
 
@@ -155,7 +156,7 @@ def delete_activity(id):
     activity = Activity.query.get(id)
     db.session.delete(activity)
     db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('main.index'))
 
 
 

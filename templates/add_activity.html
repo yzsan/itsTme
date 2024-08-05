@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1 class="mb-4">Add Activity</h1>
-<form action="{{ url_for('add_activity') }}" method="post">
+<form action="{{ url_for('main.add_activity') }}" method="post">
     <div class="form-group">
         <label for="name">Activity Name</label>
         <input type="text" class="form-control" id="name" name="name" placeholder="Enter activity name" required>
@@ -18,6 +18,6 @@
         <input type="datetime-local" class="form-control" id="last_done" name="last_done" required>
     </div>
     <button type="submit" class="btn btn-custom">Add Activity</button>
-    <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to List</a>
+    <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Back to List</a>
 </form>
 {% endblock %}

@@ -23,7 +23,7 @@ from flask_bcrypt import Bcrypt
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
-login_manager.login_view = 'login'
+login_manager.login_view = 'main.login'  # 'main'はブループリントの名前
 
 def create_app():
     app = Flask(__name__)
@@ -34,6 +34,10 @@ def create_app():
     login_manager.init_app(app)
 
     migrate = Migrate(app, db)  # 追加
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     with app.app_context():
         # from .models import User, Activity, Update  # ここでインポート
@@ -211,5 +215,5 @@ JST = pytz.timezone('Asia/Tokyo')  ### 追加(TIME)
 #     app.run(debug=True)  # Flaskアプリケーションを実行します。'debug=True'はデバッグモードを有効にし、コードの変更を自動的に反映させたり、エラーメッセージを詳しく表示したりします。
 #     ## ただし、本番環境では通常、debug=Falseに設定します。
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     app.run(debug=True)
