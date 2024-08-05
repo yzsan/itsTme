@@ -1,44 +1,69 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate  # Flask-Migrateを追加
-from datetime import datetime, timedelta
+from flask_migrate import Migrate
+from datetime import datetime
 import pytz
-
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_bcrypt import Bcrypt
 
-# Flaskアプリケーションの設定
-app = Flask(__name__)
-app.config.from_object('config.Config')
+# # Flaskアプリケーションの設定
+# app = Flask(__name__)
+# app.config.from_object('config.Config')  # config.pyから設定を読み込む
 
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)  # マイグレーションの設定
-login_manager = LoginManager(app)
-bcrypt = Bcrypt(app)
+# # SQLAlchemyのインスタンスを作成し、アプリに関連付ける
+# db = SQLAlchemy(app)
+# migrate = Migrate(app, db)
+# login_manager = LoginManager(app)
+# bcrypt = Bcrypt(app)
 
-# モデルのインポート
+db = SQLAlchemy()
+bcrypt = Bcrypt()
+login_manager = LoginManager()
+login_manager.login_view = 'main.login'
+
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object('config.Config')
+
+    db.init_app(app)
+    bcrypt.init_app(app)
+    login_manager.init_app(app)
+
+    with app.app_context():
+        from models import User, Activity, Update  # 相対インポートを絶対インポートに変更
+        db.create_all()
+
+    from routes import main as main_blueprint
+    app.register_blueprint(main_blueprint)
+
+    return app
+
+app = create_app()
+
+# モデルのインポートはdbの初期化後に行う
 from models import User, Activity, Update
 
 # ユーザー認証の設定
 login_manager.login_view = 'login'
 
-JST = pytz.timezone('Asia/Tokyo')
+JST = pytz.timezone('Asia/Tokyo')  # 日本時間の設定
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# ルートの定義とビュー関数
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form['username']
+        password = request.form['password']
         user = User.query.filter_by(username=username).first()
         if user and bcrypt.check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('index'))
         else:
-            flash('Login Unsuccessful. Check username and password', 'danger')
+            flash('Invalid username or password')
     return render_template('login.html')
 
 @app.route('/logout')
