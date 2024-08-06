@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, current_user, logout_user, login_required
 from models import User, Activity, Update
 from app import db, bcrypt
@@ -52,8 +52,10 @@ JST = pytz.timezone('Asia/Tokyo')  ### 追加(TIME)
 # @app.route('/logout')  # *
 @main.route('/logout')  # *
 def logout():
-    logout_user()
-    return redirect(url_for('main.index'))
+    # logout_user()
+    session.clear()
+    # return redirect(url_for('main.index'))
+    return redirect(url_for('main.login'))
 
 # @app.route('/')
 @main.route('/')
