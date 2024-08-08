@@ -62,4 +62,20 @@ h1, h2, h3, h4, h5, h6, p {
     text-overflow: ellipsis; /* 内容が長すぎる場合に省略記号を表示 */
 }
 
-  
+ 
+/* Add your custom styles here */
+body {
+    padding-top: 56px; /* Adjust if necessary */
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5em;
+    }
+    .navbar-nav {
+        text-align: center;
+    }
+}
+
+
+
