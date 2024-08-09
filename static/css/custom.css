@@ -68,19 +68,22 @@ body {
     padding-top: 56px; /* Adjust if necessary */
 }
 
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
     h1 {
         font-size: 1.5em;
     }
     .navbar-nav {
         text-align: center;
     }
-}
+} */
 
-.navbar .nav-link {
-    display: inline-block; /* 確実に表示させるために使用 */
-    overflow: visible; /* ボタンが隠れないようにする */
-    visibility: visible; /* 視覚的に隠されていないことを確認 */
+@media (max-width: 768px) {
+    .navbar-nav {
+        display: block; /* 必要に応じて表示 */
+    }
+    .navbar-nav .nav-item {
+        display: inline-block;
+    }
 }
 
 
