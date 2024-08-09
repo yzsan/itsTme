@@ -77,5 +77,11 @@ body {
     }
 }
 
+.navbar .nav-link {
+    display: inline-block; /* 確実に表示させるために使用 */
+    overflow: visible; /* ボタンが隠れないようにする */
+    visibility: visible; /* 視覚的に隠されていないことを確認 */
+}
+
 
 
