@@ -86,5 +86,13 @@ body {
     }
 }
 
+/* 列のスタイル */
+.column-class {
+    width: 100%; /* 列の幅を調整 */
+    white-space: nowrap; /* テキストを1行に収める */
+    overflow: hidden; /* 範囲外のテキストを隠す */
+    text-overflow: ellipsis; /* 範囲外のテキストの代わりに省略記号を表示 */
+}
+
 
 
