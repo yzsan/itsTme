@@ -94,5 +94,9 @@ body {
     text-overflow: ellipsis; /* 範囲外のテキストの代わりに省略記号を表示 */
 }
 
+.navbar .btn {
+    display: block !important;
+}
+
 
 
