@@ -129,3 +129,16 @@ body {
 } */
 
 
+.table-striped td, .table-striped th {
+    white-space: nowrap; /* テキストの折り返しを防ぐ */
+  }
+  
+  .table-striped {
+    table-layout: auto; /* カラム幅を自動調整 */
+    word-wrap: break-word;
+  }
+
+  
+  .table-striped td, .table-striped th {
+    white-space: nowrap;
+  }
