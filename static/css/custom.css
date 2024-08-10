@@ -77,14 +77,25 @@ body {
     }
 } */
 
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
     .navbar-nav {
-        display: block; /* 必要に応じて表示 */
+        display: block;
     }
     .navbar-nav .nav-item {
         display: inline-block;
     }
-}
+} */  /* display: block -> 必要に応じて表示 */
+
+/* スマホ画面用のメディアクエリ */
+@media (max-width: 768px) {
+    .navbar-nav {
+        flex-direction: column; /* 縦並びに変更 */
+    }
+
+    .navbar-nav .nav-item {
+        width: 100%; /* ボタンが全幅に広がるように設定 */
+        text-align: center; /* 中央揃え */
+    }
 
 /* 列のスタイル */
 .column-class {
