@@ -97,6 +97,20 @@ body {
         text-align: center; /* 中央揃え */
     }
 
+    .navbar-toggler {
+        display: block; /* トグルボタンを表示 */
+    }
+
+    .navbar-collapse {
+        display: none; /* トグル時に表示するため、デフォルトでは非表示 */
+    }
+
+    .navbar-toggler.collapsed + .navbar-collapse {
+        display: flex; /* トグルされたときにナビゲーションを表示 */
+    }
+}
+
+
 /* 列のスタイル */
 .column-class {
     width: 100%; /* 列の幅を調整 */
