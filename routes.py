@@ -14,14 +14,25 @@ def register():
     # if current_user.is_authenticated:
     #     return redirect(url_for('main.index'))
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        new_user = User(username=username, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Account created successfully!', 'success')
-        return redirect(url_for('main.login'))
+        try:
+            # フォームからデータを取得
+            username = request.form.get('username')
+            password = request.form.get('password')
+            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+            # 新しいユーザーのインスタンスを作成
+            new_user = User(username=username, password=hashed_password)
+            # データベースにユーザーを追加
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Account created successfully!', 'success')
+            return redirect(url_for('main.login'))
+        
+        except Exception as e:
+            # エラーが発生した場合、フラッシュメッセージを表示し、再度register.htmlをレンダリング
+            db.session.rollback()  # トランザクションをロールバック
+            flash(f'An error occurred: {str(e)}', 'danger')
+            return render_template('register.html')
+
     return render_template('register.html')
 
 @main.route('/login', methods=['GET', 'POST'])

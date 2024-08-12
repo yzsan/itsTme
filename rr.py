@@ -10,17 +10,50 @@ def index():
     return render_template('index.html')
 
 
+# def register():
+#     if request.method == 'POST':
+#         username = request.form.get('username')
+#         password = request.form.get('password')
+#         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+#         new_user = User(username=username, password=hashed_password)
+#         db.session.add(new_user)
+#         db.session.commit()
+#         flash('Account created successfully!', 'success')
+#         return redirect(url_for('main.login'))
+#     return render_template('register.html')
+
+# 以下 try-exceptの導入
+from flask import Flask, render_template, request, redirect, url_for, flash
+from your_application import db, User
+
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        new_user = User(username=username, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Account created successfully!', 'success')
-        return redirect(url_for('main.login'))
+        try:
+            # フォームからデータを取得
+            username = request.form.get('username')
+            password = request.form.get('password')
+            email = request.form.get('email')
+
+            # 新しいユーザーのインスタンスを作成
+            new_user = User(username=username, password=password, email=email)
+
+            # データベースにユーザーを追加
+            db.session.add(new_user)
+            db.session.commit()
+
+            flash('Registration successful!', 'success')
+            return redirect(url_for('login'))
+
+        except Exception as e:
+            # エラーが発生した場合、フラッシュメッセージを表示し、再度register.htmlをレンダリング
+            db.session.rollback()  # トランザクションをロールバック
+            flash(f'An error occurred: {str(e)}', 'danger')
+            return render_template('register.html')
+
     return render_template('register.html')
+
+
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
