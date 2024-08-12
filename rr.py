@@ -45,11 +45,22 @@ def register():
             flash('Registration successful!', 'success')
             return redirect(url_for('login'))
 
+        # except Exception as e:
+        #     # エラーが発生した場合、フラッシュメッセージを表示し、再度register.htmlをレンダリング
+        #     db.session.rollback()  # トランザクションをロールバック
+        #     flash(f'An error occurred: {str(e)}', 'danger')
+        #     return render_template('register.html')
+
+        # 表示の改善
+        except IntegrityError as e:
+            db.session.rollback()
+            # ログに詳細なエラーメッセージを記録
+            app.logger.error(f"IntegrityError: {e}")
+            flash('Username already exists. Please choose a different username.', 'danger')
         except Exception as e:
-            # エラーが発生した場合、フラッシュメッセージを表示し、再度register.htmlをレンダリング
-            db.session.rollback()  # トランザクションをロールバック
-            flash(f'An error occurred: {str(e)}', 'danger')
-            return render_template('register.html')
+            db.session.rollback()
+            app.logger.error(f"Unexpected error: {e}")
+            flash('An unexpected error occurred. Please try again.', 'danger')
 
     return render_template('register.html')
 

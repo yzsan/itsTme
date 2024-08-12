@@ -1,7 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, session
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session, current_app
 from flask_login import login_user, current_user, logout_user, login_required
 from models import User, Activity, Update
 from app import db, bcrypt
+
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError  # ここでIntegrityErrorをインポート
 
 main = Blueprint('main', __name__)
 
@@ -27,11 +30,22 @@ def register():
             flash('Account created successfully!', 'success')
             return redirect(url_for('main.login'))
         
+        except IntegrityError as e:
+            db.session.rollback()
+            # ログに詳細なエラーメッセージを記録
+            current_app.logger.error(f"IntegrityError: {e}")
+            flash('Username already exists. Please choose a different username.', 'danger')
+        
         except Exception as e:
             # エラーが発生した場合、フラッシュメッセージを表示し、再度register.htmlをレンダリング
             db.session.rollback()  # トランザクションをロールバック
-            flash(f'An error occurred: {str(e)}', 'danger')
-            return render_template('register.html')
+            # flash(f'An error occurred: {str(e)}', 'danger')
+
+            current_app.logger.error(f"Unexpected error: {e}")
+            flash('An unexpected error occurred. Please try again.', 'danger')
+
+            
+            # return render_template('register.html')
 
     return render_template('register.html')
 
